@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orkesta · Plan Estratégico de Arranque</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%231B3A4B'/><path d='M32 12c-11 0-20 9-20 20s9 20 20 20c8 0 14.8-4.7 17.8-11.4' stroke='white' stroke-width='5' fill='none' stroke-linecap='round'/><circle cx='44' cy='18' r='3.5' fill='white'/></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+  :root {
+    --navy:#1B3A4B;--teal:#4A8B8C;--sand:#F5F0EB;--accent:#C49A6C;--dark:#2D2D2D;
+    --phase-legal:#1B3A4B;--phase-equipo:#4A8B8C;--phase-comercial:#8B5E3C;
+    --phase-marketing:#C49A6C;--phase-producto:#6B7B8D;--phase-gobierno:#5B4A6B;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--dark);min-height:100vh;}
+  .container{max-width:1200px;margin:0 auto;padding:32px 24px;}
+  .header{display:flex;align-items:center;gap:16px;margin-bottom:8px;}
+  .logo-icon{width:48px;height:48px;flex-shrink:0;}
+  .header h1{font-family:'Crimson Pro',serif;font-size:28px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;line-height:1.1;}
+  .header p{font-size:13px;color:var(--teal);margin-top:2px;}
+  .header-line{height:2px;margin-bottom:20px;background:linear-gradient(90deg,var(--navy),var(--teal),transparent);}
+  .controls{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+  .btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;border:1px solid #ddd;background:white;cursor:pointer;color:var(--dark);transition:all .2s;display:inline-flex;align-items:center;gap:5px;}
+  .btn:hover{border-color:var(--teal);color:var(--teal);}
+  .btn.primary{background:var(--navy);color:white;border-color:var(--navy);}
+  .btn.primary:hover{background:var(--teal);border-color:var(--teal);}
+  .btn.danger{color:#c0392b;border-color:#e0c8c8;}
+  .btn.danger:hover{background:#c0392b;color:white;border-color:#c0392b;}
+  .btn svg{width:14px;height:14px;}
+  .spacer{flex:1;}
+  .status{font-size:11px;color:var(--teal);font-style:italic;}
+  .timeline-header{display:flex;margin-left:300px;position:sticky;top:0;z-index:5;background:var(--sand);}
+  .month-label{text-align:center;font-size:12px;font-weight:600;color:var(--navy);border-bottom:2px solid var(--navy);padding-bottom:3px;}
+  .week-row{display:flex;margin-left:300px;margin-bottom:6px;}
+  .week-label{text-align:center;font-size:10px;color:#aaa;}
+  .phase-group{margin-bottom:16px;border-radius:8px;transition:background .2s;}
+  .phase-group:hover .phase-actions{opacity:1;}
+  .phase-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:4px 0;}
+  .phase-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+  .phase-name{font-family:'Crimson Pro',serif;font-size:14px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;}
+  .phase-line{flex:1;height:1px;background:#ddd;}
+  .phase-actions{display:flex;gap:4px;opacity:0;transition:opacity .2s;}
+  .phase-actions .btn{padding:3px 8px;font-size:11px;}
+  .task-row{display:flex;align-items:center;height:32px;margin-bottom:2px;border-radius:4px;transition:background .15s;position:relative;}
+  .task-row:hover{background:rgba(74,139,140,.06);}
+  .task-row:hover .task-delete{opacity:1;}
+  .task-label{width:300px;padding:0 10px 0 24px;flex-shrink:0;font-size:12px;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;}
+  .task-owner{font-size:10px;color:#999;font-style:italic;white-space:nowrap;}
+  .task-delete{opacity:0;transition:opacity .15s;cursor:pointer;color:#c0392b;font-size:14px;flex-shrink:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:3px;}
+  .task-delete:hover{background:#fde8e8;}
+  .task-timeline{flex:1;position:relative;height:100%;}
+  .grid-line{position:absolute;top:0;bottom:0;width:1px;pointer-events:none;}
+  .grid-line.major{background:#ddd;}.grid-line.minor{background:#eee;}
+  .task-bar{position:absolute;top:7px;height:18px;border-radius:4px;cursor:grab;transition:box-shadow .2s,opacity .2s;display:flex;align-items:center;justify-content:center;min-width:16px;}
+  .task-bar:hover{box-shadow:0 3px 12px rgba(0,0,0,.2);z-index:10;}
+  .task-bar.dragging{cursor:grabbing;opacity:.85;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:20;}
+  .task-bar.milestone::after{content:'';position:absolute;right:-6px;top:-1px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:10px solid currentColor;transform:rotate(180deg);}
+  .task-bar.recurring{background:repeating-linear-gradient(90deg,currentColor 0px,currentColor 6px,transparent 6px,transparent 12px)!important;opacity:.3;border:1px dashed currentColor;}
+  .resize-handle{position:absolute;top:0;width:8px;height:100%;cursor:ew-resize;z-index:5;}
+  .resize-handle.left{left:-2px;}.resize-handle.right{right:-2px;}
+  .resize-handle:hover{background:rgba(255,255,255,.3);border-radius:4px;}
+  .tooltip{position:fixed;background:var(--navy);color:white;font-size:11px;padding:6px 12px;border-radius:6px;pointer-events:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.2);white-space:nowrap;}
+  .tooltip::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid var(--navy);}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .modal-overlay.active{opacity:1;pointer-events:all;}
+  .modal{background:white;border-radius:12px;padding:28px 32px;width:440px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px);transition:transform .2s;}
+  .modal-overlay.active .modal{transform:translateY(0);}
+  .modal h2{font-family:'Crimson Pro',serif;font-size:22px;color:var(--navy);margin-bottom:16px;}
+  .modal label{display:block;font-size:12px;font-weight:600;color:var(--dark);margin-bottom:4px;margin-top:12px;}
+  .modal input,.modal select{width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--dark);outline:none;transition:border .2s;}
+  .modal input:focus,.modal select:focus{border-color:var(--teal);}
+  .modal .row{display:flex;gap:12px;}
+  .modal .row>*{flex:1;}
+  .modal .checks{display:flex;gap:16px;margin-top:8px;}
+  .modal .checks label{display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;margin:0;}
+  .modal .checks input{width:auto;}
+  .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #eee;}
+
+  .legend{margin-top:24px;padding:16px 20px;background:white;border-radius:8px;border:1px solid #e0dcd7;}
+  .legend-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .legend-items{display:flex;gap:18px;flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dark);}
+  .legend-dot{width:14px;height:10px;border-radius:2px;}
+  .legend-note{margin-top:8px;font-size:11px;color:#999;}
+  .context-note{margin-top:16px;padding:14px 18px;background:white;border-left:3px solid var(--teal);border-radius:0 8px 8px 0;font-size:12px;color:var(--dark);line-height:1.6;}
+  .context-note strong{color:var(--navy);}
+
+  .color-picker{display:flex;gap:6px;margin-top:6px;}
+  .color-swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:border .15s;}
+  .color-swatch:hover,.color-swatch.selected{border-color:var(--dark);transform:scale(1.1);}
+
+  @media print{.controls,.phase-actions,.task-delete,.modal-overlay{display:none!important;}.task-bar{cursor:default!important;}body{background:white;}}
+  @media(max-width:768px){.task-label{width:180px;font-size:11px;}.container{padding:16px 12px;}.header h1{font-size:22px;}.modal{padding:20px 24px;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <svg class="logo-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="30" fill="#1B3A4B"/>
+      <path d="M32 12c-11 0-20 9-20 20s9 20 20 20c8 0 14.8-4.7 17.8-11.4" stroke="white" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="44" cy="18" r="3.5" fill="white"/>
+    </svg>
+    <div>
+      <h1>Plan Estratégico de Arranque</h1>
+      <p>Orkesta Technologies · Primeros 90 días · Junio — Agosto 2026</p>
+    </div>
+  </div>
+  <div class="header-line"></div>
+  <div class="context-note">
+    <strong>Contexto:</strong> Los productos (Retail CRM, Schools MVP) ya están desarrollados. El foco de los primeros 90 días es <strong>constituir legalmente</strong>, <strong>armar el equipo comercial</strong> y <strong>generar los primeros ingresos</strong>.
+  </div>
+  <div class="controls" style="margin-top:16px;">
+    <button class="btn primary" onclick="openAddPhase()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Nuevo bloque</button>
+    <button class="btn" onclick="resetAll()">Restaurar</button>
+    <button class="btn" onclick="exportData()">Exportar JSON</button>
+    <div class="spacer"></div>
+    <span class="status" id="status">Arrastra barras · Click ✕ para eliminar · Hover en bloque para opciones</span>
+  </div>
+  <div id="gantt-container"></div>
+  <div class="legend">
+    <div class="legend-row">
+      <div class="legend-items" id="legend-phases"></div>
+      <div class="legend-items">
+        <div class="legend-item"><div class="legend-dot" style="border:1px dashed #999;background:repeating-linear-gradient(90deg,#99999933 0px,#99999933 4px,transparent 4px,transparent 8px)"></div>Recurrente</div>
+        <div class="legend-item"><div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid #999;transform:rotate(180deg)"></div>Hito</div>
+      </div>
+    </div>
+    <p class="legend-note">Arrastra barras para mover · Bordes para redimensionar · Hover en bloque para agregar tarea o eliminar bloque.</p>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip" style="display:none;"></div>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h2 id="taskModalTitle">Agregar Tarea</h2>
+    <label>Nombre de la tarea</label>
+    <input type="text" id="tmName" placeholder="Ej: Primer cierre Retail">
+    <label>Responsable</label>
+    <input type="text" id="tmOwner" placeholder="Ej: Francisco / Leo">
+    <div class="row">
+      <div><label>Semana inicio (1-13)</label><input type="number" id="tmStart" min="1" max="13" value="1"></div>
+      <div><label>Semana fin (1-13)</label><input type="number" id="tmEnd" min="1" max="13" value="3"></div>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" id="tmMilestone"> Hito</label>
+      <label><input type="checkbox" id="tmRecurring"> Recurrente</label>
+    </div>
+    <input type="hidden" id="tmPhaseIdx">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('taskModal')">Cancelar</button>
+      <button class="btn primary" onclick="saveTask()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Phase Modal -->
+<div class="modal-overlay" id="phaseModal">
+  <div class="modal">
+    <h2>Nuevo Bloque</h2>
+    <label>Nombre del bloque</label>
+    <input type="text" id="pmName" placeholder="Ej: Alianzas Estratégicas">
+    <label>Color</label>
+    <div class="color-picker" id="pmColors"></div>
+    <input type="hidden" id="pmColor">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('phaseModal')">Cancelar</button>
+      <button class="btn primary" onclick="savePhase()">Crear bloque</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WEEKS = 13;
+const WEEK_NAMES = Array.from({length:WEEKS},(_,i)=>`S${i+1}`);
+const MONTHS = [{name:'Junio 2026',weeks:4},{name:'Julio 2026',weeks:5},{name:'Agosto 2026',weeks:4}];
+const PALETTE = ['#1B3A4B','#4A8B8C','#8B5E3C','#C49A6C','#6B7B8D','#5B4A6B','#2E86AB','#A23B72','#3C6E47','#C44536'];
+
+const INITIAL_DATA = [
+  { name:'Constitución Legal', color:'#1B3A4B', key:'legal', tasks:[
+    {id:'l1',name:'Decisión tipo sociedad (SAPI de CV)',start:0,end:1,owner:'Todos',milestone:true},
+    {id:'l2',name:'Selección notario + abogado corporativo',start:0,end:2,owner:'Francisco'},
+    {id:'l3',name:'Redacción estatutos + acuerdo accionistas',start:2,end:4,owner:'Abogado / Francisco'},
+    {id:'l4',name:'Firma ante notario',start:4,end:5,owner:'Todos',milestone:true},
+    {id:'l5',name:'Registro SAT (RFC) + e.firma',start:5,end:7,owner:'Francisco / Contador'},
+    {id:'l6',name:'Apertura cuenta bancaria empresarial',start:5,end:6,owner:'Francisco'},
+    {id:'l7',name:'Depósito inversión Miguel',start:6,end:7,owner:'Miguel',milestone:true},
+    {id:'l8',name:'Alta patronal IMSS + registro INFONAVIT',start:6,end:8,owner:'Contador'},
+  ]},
+  { name:'Equipo y Contrataciones', color:'#4A8B8C', key:'equipo', tasks:[
+    {id:'e1',name:'Contrato Leo (Gerente Producto) — periodo prueba',start:1,end:2,owner:'Francisco'},
+    {id:'e2',name:'Contrato Alejandra (BDR) — periodo prueba',start:2,end:3,owner:'Francisco'},
+    {id:'e3',name:'Contrato Gustavo (Dev Sr) — periodo prueba',start:2,end:3,owner:'Francisco / Rafael'},
+    {id:'e4',name:'Contratos laborales + cesión IP firmados',start:3,end:4,owner:'Abogado',milestone:true},
+    {id:'e5',name:'Onboarding: procesos, herramientas, pitch',start:3,end:5,owner:'Leo / Francisco'},
+    {id:'e6',name:'Role play ventas con Alejandra',start:4,end:5,owner:'Leo / Miguel'},
+    {id:'e7',name:'Setup herramientas (Claude, GitHub, Figma, CRM)',start:1,end:3,owner:'Rafael'},
+  ]},
+  { name:'Comercial y Ventas', color:'#8B5E3C', key:'comercial', tasks:[
+    {id:'c1',name:'Propuestas comerciales Retail + Schools finalizadas',start:1,end:3,owner:'Francisco / Leo'},
+    {id:'c2',name:'Base de prospectos: 200+ autopartes, 100+ escuelas',start:2,end:4,owner:'Alejandra / Leo'},
+    {id:'c3',name:'Inicio prospección activa Retail (llamadas + WA)',start:4,end:13,owner:'Alejandra'},
+    {id:'c4',name:'Inicio prospección activa Schools',start:5,end:13,owner:'Alejandra / Leo'},
+    {id:'c5',name:'Primer PoC Retail firmado',start:6,end:7,owner:'Leo',milestone:true},
+    {id:'c6',name:'Primer PoC Schools firmado',start:8,end:9,owner:'Leo',milestone:true},
+    {id:'c7',name:'Implementación PoC Retail (5 semanas)',start:7,end:12,owner:'Leo / Rafael'},
+    {id:'c8',name:'Implementación PoC Schools',start:9,end:13,owner:'Gustavo / Leo'},
+    {id:'c9',name:'Pipeline Consulting: primeros leads',start:6,end:13,owner:'Francisco'},
+    {id:'c10',name:'Meta: $100K-$150K facturado en pipeline',start:11,end:12,owner:'Equipo',milestone:true},
+  ]},
+  { name:'Marketing y Marca', color:'#C49A6C', key:'marketing', tasks:[
+    {id:'m1',name:'Branding final + identidad visual',start:0,end:2,owner:'Agencia'},
+    {id:'m2',name:'Sitio web orkesta.mx en vivo',start:2,end:4,owner:'Agencia / Rafael',milestone:true},
+    {id:'m3',name:'Contenido: casos de uso, landing Retail + Schools',start:3,end:6,owner:'Agencia / Leo'},
+    {id:'m4',name:'Campañas Meta Ads (autopartes + escuelas)',start:5,end:13,owner:'Agencia / Leo'},
+    {id:'m5',name:'LinkedIn: posicionamiento founders',start:3,end:13,owner:'Francisco'},
+    {id:'m6',name:'Material de ventas: presentaciones, one-pagers',start:2,end:4,owner:'Francisco / Leo'},
+  ]},
+  { name:'Producto (Iteración)', color:'#6B7B8D', key:'producto', tasks:[
+    {id:'p1',name:'Retail: ajustes pre-piloto según feedback Leo',start:1,end:4,owner:'Rafael / Gustavo'},
+    {id:'p2',name:'Schools: ajustes módulo cobranza + WhatsApp',start:2,end:5,owner:'Gustavo'},
+    {id:'p3',name:'Integración pagos (Mercado Pago / Stripe)',start:4,end:7,owner:'Rafael'},
+    {id:'p4',name:'Iteración post-PoC Retail',start:10,end:13,owner:'Rafael / Gustavo'},
+    {id:'p5',name:'Dashboard métricas para clientes',start:6,end:9,owner:'Gustavo'},
+  ]},
+  { name:'Gobierno y Finanzas', color:'#5B4A6B', key:'gobierno', tasks:[
+    {id:'g1',name:'Misión, visión y valores (v1)',start:0,end:2,owner:'Todos'},
+    {id:'g2',name:'Reunión semanal socios (lunes 6pm)',start:1,end:13,owner:'Todos',recurring:true},
+    {id:'g3',name:'Definir cascada distribución utilidades',start:1,end:3,owner:'Francisco / Miguel'},
+    {id:'g4',name:'Primer estado financiero mensual',start:4,end:5,owner:'Contador'},
+    {id:'g5',name:'Revisión metas vs realidad (mes 2)',start:8,end:9,owner:'Francisco'},
+    {id:'g6',name:'Primera sesión formal Consejo Admin.',start:12,end:13,owner:'Todos',milestone:true},
+    {id:'g7',name:'Revisión breakeven vs proyección MC',start:12,end:13,owner:'Francisco'},
+    {id:'g8',name:'Caso IPADE: resolver en equipo',start:3,end:4,owner:'Todos'},
+  ]},
+];
+
+let phases = JSON.parse(JSON.stringify(INITIAL_DATA));
+let idCounter = 1000;
+const tooltip = document.getElementById('tooltip');
+
+function render() {
+  const container = document.getElementById('gantt-container');
+  container.innerHTML = '';
+
+  // Month headers
+  const monthRow = document.createElement('div');
+  monthRow.className = 'timeline-header';
+  MONTHS.forEach(m => { const d=document.createElement('div');d.className='month-label';d.style.width=`${(m.weeks/WEEKS)*100}%`;d.textContent=m.name;monthRow.appendChild(d); });
+  container.appendChild(monthRow);
+
+  // Week headers
+  const weekRow = document.createElement('div');
+  weekRow.className = 'week-row';
+  WEEK_NAMES.forEach(w => { const d=document.createElement('div');d.className='week-label';d.style.width=`${100/WEEKS}%`;d.textContent=w;weekRow.appendChild(d); });
+  container.appendChild(weekRow);
+
+  // Phases
+  phases.forEach((phase, pi) => {
+    const group = document.createElement('div');
+    group.className = 'phase-group';
+
+    const header = document.createElement('div');
+    header.className = 'phase-header';
+    header.innerHTML = `
+      <div class="phase-dot" style="background:${phase.color}"></div>
+      <span class="phase-name">${phase.name}</span>
+      <div class="phase-line"></div>
+      <div class="phase-actions">
+        <button class="btn" onclick="openAddTask(${pi})" title="Agregar tarea">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M12 5v14M5 12h14"/></svg>
+          Tarea
+        </button>
+        <button class="btn danger" onclick="deletePhase(${pi})" title="Eliminar bloque">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </button>
+      </div>`;
+    group.appendChild(header);
+
+    phase.tasks.forEach((task, ti) => {
+      const row = document.createElement('div');
+      row.className = 'task-row';
+
+      const del = document.createElement('div');
+      del.className = 'task-delete';
+      del.innerHTML = '✕';
+      del.title = 'Eliminar tarea';
+      del.onclick = (e) => { e.stopPropagation(); deleteTask(pi, ti); };
+
+      const label = document.createElement('div');
+      label.className = 'task-label';
+      label.innerHTML = `${del.outerHTML}<span style="flex:1;overflow:hidden;text-overflow:ellipsis">${task.name}</span><span class="task-owner">${task.owner}</span>`;
+      // Attach event to the rendered delete button
+      label.querySelector('.task-delete').onclick = (e) => { e.stopPropagation(); deleteTask(pi, ti); };
+
+      const timeline = document.createElement('div');
+      timeline.className = 'task-timeline';
+      for(let i=0;i<=WEEKS;i++){const line=document.createElement('div');line.className=`grid-line ${i%4===0?'major':'minor'}`;line.style.left=`${(i/WEEKS)*100}%`;timeline.appendChild(line);}
+
+      const bar = document.createElement('div');
+      bar.className = `task-bar${task.milestone?' milestone':''}${task.recurring?' recurring':''}`;
+      bar.style.left = `${(task.start/WEEKS)*100}%`;
+      bar.style.width = `${((task.end-task.start)/WEEKS)*100}%`;
+      bar.style.background = task.recurring ? 'transparent' : phase.color;
+      bar.style.color = phase.color;
+
+      if(!task.recurring){
+        const lh=document.createElement('div');lh.className='resize-handle left';lh.addEventListener('mousedown',e=>startResize(e,pi,ti,'left'));bar.appendChild(lh);
+        const rh=document.createElement('div');rh.className='resize-handle right';rh.addEventListener('mousedown',e=>startResize(e,pi,ti,'right'));bar.appendChild(rh);
+      }
+      bar.addEventListener('mousedown',e=>{if(e.target.classList.contains('resize-handle'))return;startDrag(e,pi,ti);});
+      bar.addEventListener('mouseenter',e=>showTooltip(e,task));
+      bar.addEventListener('mouseleave',()=>hideTooltip());
+
+      timeline.appendChild(bar);
+      row.appendChild(label);
+      row.appendChild(timeline);
+      group.appendChild(row);
+    });
+
+    container.appendChild(group);
+  });
+
+  // Legend
+  const lp = document.getElementById('legend-phases');
+  lp.innerHTML = '';
+  phases.forEach(p=>{const item=document.createElement('div');item.className='legend-item';item.innerHTML=`<div class="legend-dot" style="background:${p.color}"></div>${p.name}`;lp.appendChild(item);});
+}
+
+// ============ CRUD ============
+
+function openAddTask(phaseIdx) {
+  document.getElementById('tmName').value = '';
+  document.getElementById('tmOwner').value = '';
+  document.getElementById('tmStart').value = '1';
+  document.getElementById('tmEnd').value = '3';
+  document.getElementById('tmMilestone').checked = false;
+  document.getElementById('tmRecurring').checked = false;
+  document.getElementById('tmPhaseIdx').value = phaseIdx;
+  document.getElementById('taskModalTitle').textContent = `Agregar tarea a "${phases[phaseIdx].name}"`;
+  openModal('taskModal');
+}
+
+function saveTask() {
+  const name = document.getElementById('tmName').value.trim();
+  const owner = document.getElementById('tmOwner').value.trim();
+  const start = parseInt(document.getElementById('tmStart').value) - 1;
+  const end = parseInt(document.getElementById('tmEnd').value);
+  const milestone = document.getElementById('tmMilestone').checked;
+  const recurring = document.getElementById('tmRecurring').checked;
+  const pi = parseInt(document.getElementById('tmPhaseIdx').value);
+
+  if (!name) { document.getElementById('tmName').style.borderColor='#c0392b'; return; }
+  if (start < 0 || end > WEEKS || start >= end) { setStatus('Semanas inválidas'); return; }
+
+  phases[pi].tasks.push({
+    id: `custom_${idCounter++}`,
+    name, owner: owner || 'Sin asignar',
+    start, end,
+    milestone, recurring
+  });
+
+  closeModal('taskModal');
+  render();
+  setStatus(`Tarea "${name}" agregada`);
+}
+
+function deleteTask(pi, ti) {
+  const name = phases[pi].tasks[ti].name;
+  if (confirm(`¿Eliminar "${name}"?`)) {
+    phases[pi].tasks.splice(ti, 1);
+    render();
+    setStatus(`Tarea eliminada`);
+  }
+}
+
+function openAddPhase() {
+  document.getElementById('pmName').value = '';
+  // Color picker
+  const picker = document.getElementById('pmColors');
+  picker.innerHTML = '';
+  document.getElementById('pmColor').value = PALETTE[0];
+  PALETTE.forEach((c,i) => {
+    const swatch = document.createElement('div');
+    swatch.className = `color-swatch${i===0?' selected':''}`;
+    swatch.style.background = c;
+    swatch.onclick = () => {
+      picker.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+      swatch.classList.add('selected');
+      document.getElementById('pmColor').value = c;
+    };
+    picker.appendChild(swatch);
+  });
+  openModal('phaseModal');
+}
+
+function savePhase() {
+  const name = document.getElementById('pmName').value.trim();
+  const color = document.getElementById('pmColor').value;
+  if (!name) { document.getElementById('pmName').style.borderColor='#c0392b'; return; }
+
+  phases.push({
+    name, color,
+    key: `custom_${idCounter++}`,
+    tasks: []
+  });
+
+  closeModal('phaseModal');
+  render();
+  setStatus(`Bloque "${name}" creado — agrega tareas con el botón +`);
+}
+
+function deletePhase(pi) {
+  const name = phases[pi].name;
+  const taskCount = phases[pi].tasks.length;
+  const msg = taskCount > 0
+    ? `¿Eliminar "${name}" con ${taskCount} tarea${taskCount>1?'s':''}?`
+    : `¿Eliminar el bloque vacío "${name}"?`;
+  if (confirm(msg)) {
+    phases.splice(pi, 1);
+    render();
+    setStatus(`Bloque "${name}" eliminado`);
+  }
+}
+
+// ============ DRAG & RESIZE ============
+
+function startDrag(e,pi,ti){
+  e.preventDefault();const bar=e.currentTarget;const timeline=bar.parentElement;const rect=timeline.getBoundingClientRect();const task=phases[pi].tasks[ti];const startX=e.clientX;const origStart=task.start;const origEnd=task.end;const duration=origEnd-origStart;
+  bar.classList.add('dragging');setStatus('Moviendo tarea...');
+  function onMove(ev){const dx=ev.clientX-startX;const wd=Math.round((dx/rect.width)*WEEKS);let ns=origStart+wd;let ne=ns+duration;if(ns<0){ns=0;ne=duration;}if(ne>WEEKS){ne=WEEKS;ns=WEEKS-duration;}task.start=ns;task.end=ne;bar.style.left=`${(ns/WEEKS)*100}%`;bar.style.width=`${(duration/WEEKS)*100}%`;tooltip.innerHTML=`<strong>${task.name}</strong><br>${weekToDate(ns)} → ${weekToDate(ne)}`;positionTooltip(ev);tooltip.style.display='block';}
+  function onUp(){bar.classList.remove('dragging');setStatus('Cambios guardados');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);hideTooltip();}
+  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+}
+
+function startResize(e,pi,ti,side){
+  e.preventDefault();e.stopPropagation();const bar=e.currentTarget.parentElement;const timeline=bar.parentElement;const rect=timeline.getBoundingClientRect();const task=phases[pi].tasks[ti];const startX=e.clientX;const origStart=task.start;const origEnd=task.end;
+  bar.classList.add('dragging');setStatus('Ajustando duración...');
+  function onMove(ev){const dx=ev.clientX-startX;const wd=Math.round((dx/rect.width)*WEEKS);if(side==='left'){let ns=origStart+wd;ns=Math.max(0,Math.min(ns,task.end-1));task.start=ns;}else{let ne=origEnd+wd;ne=Math.max(task.start+1,Math.min(ne,WEEKS));task.end=ne;}bar.style.left=`${(task.start/WEEKS)*100}%`;bar.style.width=`${((task.end-task.start)/WEEKS)*100}%`;tooltip.innerHTML=`<strong>${task.name}</strong><br>${weekToDate(task.start)} → ${weekToDate(task.end)} (${task.end-task.start} sem)`;positionTooltip(ev);tooltip.style.display='block';}
+  function onUp(){bar.classList.remove('dragging');setStatus('Cambios guardados');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);hideTooltip();}
+  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+}
+
+// ============ UTILS ============
+
+function weekToDate(w){const b=new Date(2026,5,1);b.setDate(b.getDate()+w*7);return b.toLocaleDateString('es-MX',{day:'numeric',month:'short'});}
+function showTooltip(e,t){tooltip.style.display='block';tooltip.innerHTML=`<strong>${t.name}</strong><br>${weekToDate(t.start)} → ${weekToDate(t.end)} · ${t.owner}`;positionTooltip(e);}
+function positionTooltip(e){tooltip.style.left=`${Math.min(e.clientX-tooltip.offsetWidth/2,window.innerWidth-tooltip.offsetWidth-8)}px`;tooltip.style.top=`${e.clientY-tooltip.offsetHeight-12}px`;}
+function hideTooltip(){tooltip.style.display='none';}
+function setStatus(msg){document.getElementById('status').textContent=msg;}
+function openModal(id){document.getElementById(id).classList.add('active');}
+function closeModal(id){document.getElementById(id).classList.remove('active');}
+function resetAll(){phases=JSON.parse(JSON.stringify(INITIAL_DATA));render();setStatus('Restaurado a valores originales');}
+
+function exportData(){
+  const data=phases.map(p=>({phase:p.name,color:p.color,tasks:p.tasks.map(t=>({name:t.name,start_week:t.start+1,end_week:t.end,start_date:weekToDate(t.start),end_date:weekToDate(t.end),owner:t.owner,type:t.milestone?'milestone':t.recurring?'recurring':'task'}))}));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='orkesta_gantt_plan.json';a.click();URL.revokeObjectURL(url);setStatus('JSON exportado');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target===el) el.classList.remove('active'); });
+});
+
+// Close modals on Escape
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(el=>el.classList.remove('active'));
+});
+
+render();
+</script>
+</body>
+</html>
