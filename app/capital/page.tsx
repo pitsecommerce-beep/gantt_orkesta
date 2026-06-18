@@ -1,92 +1,72 @@
+'use client'
+
+import { useTable } from '@/lib/useData'
 import DataTable from '@/components/DataTable'
 import AportacionesCrud from '@/components/AportacionesCrud'
-import { getAccionistas, getAportaciones } from '@/lib/data'
 import { capitalAportadoVsComprometido } from '@/lib/kpis'
 import { formatMXN, formatPct } from '@/lib/format'
-import type { Accionista } from '@/lib/types'
 
-export const dynamic = 'force-dynamic'
-
-export default async function CapitalPage() {
-  const [accionistas, aportaciones] = await Promise.all([
-    getAccionistas(),
-    getAportaciones(),
-  ])
+export default function CapitalPage() {
+  const { data: accionistas, loading: la } = useTable('accionistas')
+  const { data: aportaciones, loading: lap } = useTable('aportaciones_capital')
 
   const resumen = capitalAportadoVsComprometido(accionistas, aportaciones)
-  const hayPorConfirmar = accionistas.some((a) => a.por_confirmar)
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="p-8 max-w-5xl mx-auto flex flex-col gap-8">
       <header>
         <h1 className="font-serif text-3xl text-navy">Capital Social</h1>
+        <div className="mt-3 p-3 bg-warn/10 border border-warn rounded-lg text-warn text-sm font-medium">
+          ⚠ Datos por confirmar contra acta constitutiva — revisar con notario antes de usar en reportes oficiales.
+        </div>
       </header>
 
-      {hayPorConfirmar ? (
-        <div className="rounded-lg border-l-4 border-warn bg-white p-3 font-sans text-sm text-dark/80">
-          ⚠ Datos por confirmar: hay accionistas con información pendiente de
-          validar.
+      {/* Resumen */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white border-t-[3px] border-teal rounded-lg p-4 shadow-sm">
+          <p className="text-xs text-dark/50 uppercase tracking-wide">Capital Comprometido</p>
+          <p className="font-serif text-2xl text-navy mt-1">{formatMXN(resumen.comprometido)}</p>
         </div>
-      ) : null}
+        <div className="bg-white border-t-[3px] border-teal rounded-lg p-4 shadow-sm">
+          <p className="text-xs text-dark/50 uppercase tracking-wide">Capital Aportado</p>
+          <p className="font-serif text-2xl text-navy mt-1">{formatMXN(resumen.aportado)}</p>
+        </div>
+        <div className="bg-white border-t-[3px] border-gold rounded-lg p-4 shadow-sm">
+          <p className="text-xs text-dark/50 uppercase tracking-wide">% Aportado</p>
+          <p className="font-serif text-2xl text-navy mt-1">{formatPct(resumen.porcentajeAportado)}</p>
+        </div>
+      </div>
 
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-sans">
-        <div className="rounded-lg bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase text-dark/60">Comprometido</p>
-          <p className="font-serif text-2xl text-navy">
-            {formatMXN(resumen.comprometido)}
-          </p>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase text-dark/60">Aportado</p>
-          <p className="font-serif text-2xl text-navy">
-            {formatMXN(resumen.aportado)}
-          </p>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm">
-          <p className="text-xs uppercase text-dark/60">
-            Pendiente ({formatPct(resumen.porcentajeAportado)} aportado)
-          </p>
-          <p className="font-serif text-2xl text-navy">
-            {formatMXN(resumen.pendiente)}
-          </p>
-        </div>
+      {/* Accionistas */}
+      <section>
+        <h2 className="font-serif text-xl text-navy mb-4">Accionistas</h2>
+        {la ? (
+          <div className="animate-pulse text-dark/40 py-4">Cargando…</div>
+        ) : (
+          <DataTable
+            columns={[
+              { key: 'nombre', label: 'Nombre' },
+              { key: 'serie', label: 'Serie' },
+              { key: 'porcentaje', label: '%', format: (v) => `${v}%` },
+              { key: 'tiene_veto', label: 'Veto', format: (v) => v ? '✓' : '—' },
+              { key: 'capital_comprometido', label: 'Comprometido', format: (v) => formatMXN(v as number) },
+              { key: 'capital_aportado', label: 'Aportado', format: (v) => formatMXN(v as number) },
+              { key: 'por_confirmar', label: 'Estado', format: (v) => v ? <span className="text-warn text-xs font-medium">POR CONFIRMAR</span> : <span className="text-ok text-xs">Confirmado</span> },
+            ]}
+            rows={accionistas}
+          />
+        )}
       </section>
 
-      <DataTable<Accionista>
-        rows={accionistas}
-        columns={[
-          { key: 'nombre', label: 'Nombre' },
-          { key: 'serie', label: 'Serie' },
-          {
-            key: 'porcentaje',
-            label: '%',
-            align: 'right',
-            format: (v) => formatPct((Number(v) || 0) / 100),
-          },
-          {
-            key: 'tiene_veto',
-            label: 'Veto',
-            format: (v) => (v ? 'Sí' : 'No'),
-          },
-          {
-            key: 'capital_comprometido',
-            label: 'Comprometido',
-            align: 'right',
-            format: (v) => formatMXN(Number(v) || 0),
-          },
-          {
-            key: 'capital_aportado',
-            label: 'Aportado',
-            align: 'right',
-            format: (v) => formatMXN(Number(v) || 0),
-          },
-        ]}
-      />
-
-      <AportacionesCrud
-        accionistas={accionistas}
-        aportacionesIniciales={aportaciones}
-      />
+      {/* Aportaciones */}
+      <section>
+        <h2 className="font-serif text-xl text-navy mb-4">Aportaciones de Capital</h2>
+        {lap ? (
+          <div className="animate-pulse text-dark/40 py-4">Cargando…</div>
+        ) : (
+          <AportacionesCrud aportacionesIniciales={aportaciones} accionistas={accionistas} />
+        )}
+      </section>
     </div>
   )
 }
