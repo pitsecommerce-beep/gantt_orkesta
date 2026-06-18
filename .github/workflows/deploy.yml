@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/compassionate-gauss-qejtht]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +20,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Verify Supabase secrets are set
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "❌ ERROR: Supabase secrets are not set."
+            echo "   Go to: GitHub repo → Settings → Secrets and variables → Actions"
+            echo "   Add secrets: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"
+            exit 1
+          fi
+          echo "✅ Supabase secrets found: URL=$(echo $NEXT_PUBLIC_SUPABASE_URL | cut -c1-30)..."
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
