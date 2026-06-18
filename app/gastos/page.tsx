@@ -1,21 +1,20 @@
+'use client'
+
+import { useTable } from '@/lib/useData'
 import GastosCrud from '@/components/GastosCrud'
-import { getGastos } from '@/lib/data'
 
-export const dynamic = 'force-dynamic'
-
-export default async function GastosPage() {
-  const gastos = await getGastos()
+export default function GastosPage() {
+  const { data: gastos, loading } = useTable('gastos')
 
   return (
-    <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="font-serif text-3xl text-navy">Gastos</h1>
-        <p className="font-sans text-sm text-dark/60">
-          Gastos transaccionales. Cada gasto registra un movimiento de caja (salida).
-        </p>
-      </header>
-
-      <GastosCrud gastosIniciales={gastos} />
+    <div className="p-8">
+      <h1 className="font-serif text-3xl text-navy mb-2">Gastos</h1>
+      <p className="text-dark/60 mb-8">Registro transaccional de egresos</p>
+      {loading ? (
+        <div className="animate-pulse text-dark/40 py-8 text-center">Cargando gastos…</div>
+      ) : (
+        <GastosCrud gastosIniciales={gastos} />
+      )}
     </div>
   )
 }

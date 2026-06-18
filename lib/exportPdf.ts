@@ -285,9 +285,20 @@ function buildDocument(data: ExportData, periodo: string) {
 }
 
 export async function exportarPdf(
-  data: ExportData,
-  periodo: string
+  dataOrPeriodo: ExportData | string,
+  periodoArg?: string
 ): Promise<void> {
+  let data: ExportData
+  let periodo: string
+  if (typeof dataOrPeriodo === 'string') {
+    periodo = dataOrPeriodo
+    const { fetchExportData } = await import('./reportData')
+    data = await fetchExportData(periodo)
+  } else {
+    data = dataOrPeriodo
+    periodo = periodoArg ?? ''
+  }
+
   const doc = buildDocument(data, periodo)
   const blob = await pdf(doc).toBlob()
   if (typeof window !== 'undefined') {

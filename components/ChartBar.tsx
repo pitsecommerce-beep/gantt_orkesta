@@ -11,7 +11,7 @@ import {
 } from 'recharts'
 
 interface ChartBarProps {
-  data: any[]
+  data: Record<string, unknown>[]
   xKey: string
   barKey: string
   title?: string

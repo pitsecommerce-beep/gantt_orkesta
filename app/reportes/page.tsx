@@ -20,7 +20,7 @@ export default function ReportesPage() {
     try {
       await exportarExcel(periodo)
       setMsg('Excel generado correctamente.')
-    } catch (e) {
+    } catch {
       setMsg('Error al generar Excel. Verifica la conexión con Supabase.')
     } finally {
       setLoadingExcel(false)
@@ -34,7 +34,7 @@ export default function ReportesPage() {
       const { exportarPdf } = await import('@/lib/exportPdf')
       await exportarPdf(periodo)
       setMsg('PDF generado correctamente.')
-    } catch (e) {
+    } catch {
       setMsg('Error al generar PDF. Verifica la conexión con Supabase.')
     } finally {
       setLoadingPdf(false)

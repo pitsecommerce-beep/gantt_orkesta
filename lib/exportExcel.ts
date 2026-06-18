@@ -76,9 +76,20 @@ function normalizeKpis(
 // ----------------------------------------------------------------------------
 
 export async function exportarExcel(
-  data: ExportData,
-  periodo: string
+  dataOrPeriodo: ExportData | string,
+  periodoArg?: string
 ): Promise<void> {
+  let data: ExportData
+  let periodo: string
+  if (typeof dataOrPeriodo === 'string') {
+    periodo = dataOrPeriodo
+    const { fetchExportData } = await import('./reportData')
+    data = await fetchExportData(periodo)
+  } else {
+    data = dataOrPeriodo
+    periodo = periodoArg ?? ''
+  }
+
   const wb = new ExcelJS.Workbook()
   wb.creator = 'Orkesta Labs'
   wb.created = new Date()

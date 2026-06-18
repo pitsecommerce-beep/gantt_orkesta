@@ -18,7 +18,7 @@ interface LineConfig {
 }
 
 interface ChartLineProps {
-  data: any[]
+  data: Record<string, unknown>[]
   xKey: string
   lines: LineConfig[]
   title?: string
