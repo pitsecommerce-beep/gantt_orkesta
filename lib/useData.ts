@@ -27,8 +27,8 @@ export function useTable<T extends keyof TableMap>(table: T) {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.from(table).select('*').then(({ data: rows }) => {
-      setData((rows ?? []) as TableMap[T][])
+    supabase.from(table).select('*').then((res: { data: unknown[] | null }) => {
+      setData((res.data ?? []) as TableMap[T][])
       setLoading(false)
     }, () => {
       setLoading(false)
@@ -44,8 +44,9 @@ export function useConfig() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.from('config_empresa').select('*').maybeSingle().then(({ data }) => {
-      setConfig(data ?? null)
+    supabase.from('config_empresa').select('*').maybeSingle().then((res: { data: unknown }) => {
+      const data = res.data as ConfigEmpresa | null
+      setConfig(data)
       setLoading(false)
     }, () => {
       setLoading(false)
