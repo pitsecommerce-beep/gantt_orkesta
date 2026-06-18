@@ -15,7 +15,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session && !isPublic) {
-        router.replace('/gantt_orkesta/login/')
+        router.replace('/login/')
       } else {
         setChecking(false)
       }
@@ -23,7 +23,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_IN') setChecking(false)
-      if (event === 'SIGNED_OUT') router.replace('/gantt_orkesta/login/')
+      if (event === 'SIGNED_OUT') router.replace('/login/')
     })
 
     return () => subscription.unsubscribe()
