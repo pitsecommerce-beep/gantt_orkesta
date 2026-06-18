@@ -1,23 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy: #1B3A4B;
+  --teal: #4A8B8C;
+  --sand: #F5F0EB;
+  --gold: #C49A6C;
+  --dark: #2D2D2D;
+  --ok: #3C6E47;
+  --warn: #C49A6C;
+  --danger: #C44536;
+  --background: var(--sand);
+  --foreground: var(--dark);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Crimson Pro', Georgia, serif;
 }
 
 @layer utilities {
