@@ -35,11 +35,7 @@ export default function ConfigForm({ config }: { config: ConfigRecord | null }) 
     (config?.updated_at as string) ?? null
   )
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({
+  const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       tipo_cambio_mxn_usd: Number(config?.tipo_cambio_mxn_usd ?? 17),
       isr_pct: decimalToPct(config?.isr_tasa ?? 0.3),
