@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+type SessionResult = { data: { session: { user: unknown } | null }; error: unknown }
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true)
   const router = useRouter()
@@ -13,15 +15,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
     const isPublic = pathname?.includes('/login') || pathname?.includes('/auth')
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session && !isPublic) {
+    void (supabase.auth.getSession() as unknown as Promise<SessionResult>).then((res) => {
+      if (!res?.data?.session && !isPublic) {
         router.replace('/login/')
       } else {
         setChecking(false)
       }
-    })
+    }).catch(() => setChecking(false))
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string) => {
       if (event === 'SIGNED_IN') setChecking(false)
       if (event === 'SIGNED_OUT') router.replace('/login/')
     })
