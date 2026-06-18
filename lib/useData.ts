@@ -44,7 +44,7 @@ export function useConfig() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.from('config_empresa').select('*').single().then(({ data }) => {
+    supabase.from('config_empresa').select('*').maybeSingle().then(({ data }) => {
       setConfig(data ?? null)
       setLoading(false)
     }, () => {
